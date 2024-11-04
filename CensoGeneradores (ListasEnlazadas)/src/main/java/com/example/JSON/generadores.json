@@ -1,0 +1,11 @@
+[
+    {
+        "id": 1,
+        "marca": "Vault",
+        "modelo": "VBC54",
+        "costo": 180.0,
+        "consumoPorHora": 2.75,
+        "generacion": 1000.0,
+        "uso": "Emergencia"
+    }
+]

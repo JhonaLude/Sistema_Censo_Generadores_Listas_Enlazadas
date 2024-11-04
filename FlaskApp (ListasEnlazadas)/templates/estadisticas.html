@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas del Censo Energético - Loja</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Estadísticas del Censo Energético</h1>
+        
+        <!-- Tarjetas de resumen -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Familias</h5>
+                        <p class="card-text display-4">{{ total_familias }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Familias con Generador</h5>
+                        <p class="card-text display-4">{{ familias_con_generador }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Transacciones</h5>
+                        <p class="card-text display-4">{{ total_transacciones }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas de Generadores -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Estadísticas de Generadores</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Marca</th>
+                                <th>Cantidad</th>
+                                <th>Costo Promedio</th>
+                                <th>Generación Promedio</th>
+                                <th>Consumo Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in generadores_stats %}
+                            <tr>
+                                <td>{{ stat.marca }}</td>
+                                <td>{{ stat.cantidad }}</td>
+                                <td>${{ "%.2f"|format(stat.costo_promedio) }}</td>
+                                <td>{{ "%.2f"|format(stat.generacion_promedio) }} kW</td>
+                                <td>{{ "%.2f"|format(stat.consumo_promedio) }} L/h</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Distribución de Familias</h2>
+                        <canvas id="familyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title">Distribución de Generadores por Marca</h2>
+                        <canvas id="generatorChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+        // Gráfico de familias
+        new Chart(document.getElementById('familyChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Con Generador', 'Sin Generador'],
+                datasets: [{
+                    data: [{{ familias_con_generador }}, {{ total_familias - familias_con_generador }}],
+                    backgroundColor: ['rgb(40, 167, 69)', 'rgb(220, 53, 69)']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Gráfico de generadores por marca
+        new Chart(document.getElementById('generatorChart'), {
+            type: 'bar',
+            data: {
+                labels: {{ marcas|tojson }},
+                datasets: [{
+                    label: 'Cantidad de Generadores',
+                    data: {{ cantidades_por_marca }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
